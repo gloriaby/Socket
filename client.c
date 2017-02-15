@@ -19,6 +19,45 @@
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
 #define BUFFER_SIZE BUFSIZ /* or some other number */
 
+
+
+struct struct_for_recv{
+	int skfd;
+	char buffer[MAXDATASIZE];
+//	int buffer;
+};
+
+void *recv_print(struct struct_for_recv s){
+	int numbytes;
+//	int sockfd=s->skfd;
+//	char buf[MAXDATASIZE]=s.buffer;
+//	char *buf=s->buffer;
+
+    while(1){
+	if ((numbytes = recv(s.skfd, s.buffer, MAXDATASIZE-1, 0)) == -1) {
+	    perror("recv");
+	    exit(1);
+	}
+	else // !=-1
+	    printf("%s\n",s.buffer);
+	
+    }//end while	    
+	
+}
+
+
+
+void *type_get(int sfd){
+    while(1){
+	char message[]="";
+	fgets(message, 40, stdin);
+	send(sfd, message, 40, 0);
+    }//end while
+}
+
+
+
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -79,42 +118,24 @@ int main(int argc, char *argv[])
 
 	freeaddrinfo(servinfo); // all done with this structure
 
-//    while(1){
 
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	    perror("recv");
-	    exit(1);
-	}
+    	pthread_t tid, tid2;
 
-	buf[numbytes] = '\0';
-	printf("client: received '%s'\n",buf);
+	struct struct_for_recv mys;
+
+	mys.skfd=sockfd;
+//	mys.buffer=buf;
 
 
+	printf("sockfd =%d\n",mys.skfd);
+        pthread_create(&tid, NULL, recv_print, mys);
+	pthread_create(&tid2, NULL, type_get, sockfd);
 
-	//now client wants to send message to server
-	send(sockfd, "first of clinet1", 30, 0);
-	send(sockfd, "second of client 1", 20, 0);
-//	printf("enter message:\n");
-
-
-	char ipointer[]="ABC";
-   	fgets(ipointer, BUFFER_SIZE, stdin);
-//	printf(ipointer);
-	send(sockfd, ipointer, BUFFER_SIZE, 0);
-
- //   	fgets(ipointer, BUFFER_SIZE, stdin);
-//	printf(ipointer);
-//	send(sockfd, ipointer, BUFFER_SIZE, 0);
-
-
-
+    	pthread_exit(NULL);
 
 
 
 	close(sockfd);
 
-//    }//end while
-
 	return 0;
 }
-
