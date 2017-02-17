@@ -27,19 +27,20 @@ struct struct_for_recv{
 //	int buffer;
 };
 
-void *recv_print(struct struct_for_recv s){
+void *recv_print(struct struct_for_recv *s){
 	int numbytes;
 //	int sockfd=s->skfd;
 //	char buf[MAXDATASIZE]=s.buffer;
 //	char *buf=s->buffer;
 
     while(1){
-	if ((numbytes = recv(s.skfd, s.buffer, MAXDATASIZE-1, 0)) == -1) {
+
+	if (recv(s->skfd, s->buffer, MAXDATASIZE-1, 0) == -1) {
 	    perror("recv");
 	    exit(1);
 	}
 	else // !=-1
-	    printf("%s\n",s.buffer);
+	    printf("%s\n",s->buffer);
 	
     }//end while	    
 	
@@ -124,15 +125,14 @@ int main(int argc, char *argv[])
 	struct struct_for_recv mys;
 
 	mys.skfd=sockfd;
-//	mys.buffer=buf;
 
 
-	printf("sockfd =%d\n",mys.skfd);
-        pthread_create(&tid, NULL, recv_print, mys);
-	pthread_create(&tid2, NULL, type_get, sockfd);
+        pthread_create(&tid, NULL, recv_print, &mys);
+//	pthread_create(&tid2, NULL, type_get, sockfd);
+
 
     	pthread_exit(NULL);
-
+	pthread_create(&tid2, NULL, type_get, sockfd);
 
 
 	close(sockfd);
