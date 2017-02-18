@@ -1,4 +1,5 @@
 /*
+** Based on the sample code client.c from the book Beej's Guide to Network Programming
 ** client.c -- a stream socket client demo
 */
 
@@ -29,18 +30,19 @@ struct struct_for_recv{
 
 void *recv_print(struct struct_for_recv *s){
 	int numbytes;
+	int nbyte=0;
 //	int sockfd=s->skfd;
 //	char buf[MAXDATASIZE]=s.buffer;
 //	char *buf=s->buffer;
 
     while(1){
 
-	if (recv(s->skfd, s->buffer, MAXDATASIZE-1, 0) == -1) {
+	if ( (nbyte=recv(s->skfd, s->buffer, MAXDATASIZE-1, 0)) == -1) {
 	    perror("recv");
 	    exit(1);
 	}
-	else // !=-1
-	    printf("%s\n",s->buffer);
+	else if(nbyte >0)
+	    printf("%s",s->buffer);
 	
     }//end while	    
 	
@@ -51,8 +53,9 @@ void *recv_print(struct struct_for_recv *s){
 void *type_get(int sfd){
     while(1){
 	char message[]="";
-	fgets(message, 40, stdin);
-	send(sfd, message, 40, 0);
+//	int length=strlen(message);
+	fgets(message, MAXDATASIZE-1, stdin);
+	send(sfd, message, MAXDATASIZE-1, 0);
     }//end while
 }
 
@@ -128,11 +131,11 @@ int main(int argc, char *argv[])
 
 
         pthread_create(&tid, NULL, recv_print, &mys);
-//	pthread_create(&tid2, NULL, type_get, sockfd);
+	pthread_create(&tid2, NULL, type_get, sockfd);
 
 
     	pthread_exit(NULL);
-	pthread_create(&tid2, NULL, type_get, sockfd);
+
 
 
 	close(sockfd);
